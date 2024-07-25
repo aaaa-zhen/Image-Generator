@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenAI Image Generator</h1>
+    <input type="text" id="apiKey" placeholder="Enter your OpenAI API Key">
+    <input type="text" id="prompt" placeholder="Enter your image prompt">
+    <button onclick="generateImage()">Generate Image</button>
+    <div id="result"></div>
+
+    <script>
+        function generateImage() {
+            const apiKey = document.getElementById('apiKey').value;
+            const prompt = document.getElementById('prompt').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!apiKey || !prompt) {
+                resultDiv.innerHTML = 'Please enter both API Key and prompt.';
+                return;
+            }
+
+            resultDiv.innerHTML = 'Generating image...';
+
+            const url = 'https://api.aihubmix.com/v1/images/generations';
+            const data = {
+                model: "dall-e-3",
+                prompt: prompt,
+                n: 1,
+                size: "1024x1024"
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.data && result.data[0] && result.data[0].url) {
+                    const imgUrl = result.data[0].url;
+                    resultDiv.innerHTML = `<img src="${imgUrl}" alt="Generated Image">`;
+                } else {
+                    resultDiv.innerHTML = 'Failed to generate image. Check your API key and try again.';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `Error: ${error.message}`;
+            });
+        }
+    </script>
+</body>
+</html>
